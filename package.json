@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/narmidm/github-actions-kubernetes.git"
+    "url": "git+https://github.com/arshdeepdubey/github-actions-kubernetes.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/narmidm/github-actions-kubernetes/issues"
+    "url": "https://github.com/arshdeepdubey/github-actions-kubernetes/issues"
   },
-  "homepage": "https://github.com/narmidm/github-actions-kubernetes#readme",
+  "homepage": "https://github.com/arshdeepdubey/github-actions-kubernetes#readme",
   "dependencies": {
     "express": "^4.21.1"
   }
