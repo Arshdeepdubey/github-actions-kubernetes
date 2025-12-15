@@ -41,3 +41,4 @@ jobs:
         run: |
           kubectl apply -f k8s-config/deployment.yaml
           kubectl apply -f k8s-config/service.yaml
+          
