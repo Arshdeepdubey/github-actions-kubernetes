@@ -44,14 +44,18 @@ jobs:
           ref: main
           path: nodejs-k8s-config
 
-      # 5. Set up kubectl
-      - name: Set up kubectl
-        uses: azure/k8s-set-context@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+      # 5. Write kubeconfig from secret (expects base64-encoded kubeconfig)
+      - name: Write kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${KUBE_CONFIG_DATA}" | base64 --decode > "$HOME/.kube/config"
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
 
       # 6. Deploy manifests
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f nodejs-k8s-config/deployment.yaml
           kubectl apply -f nodejs-k8s-config/service.yaml
+        env:
+          KUBECONFIG: $HOME/.kube/config
