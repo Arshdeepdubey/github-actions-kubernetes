@@ -53,5 +53,5 @@ jobs:
       # 6. Deploy manifests
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f k8s-config/deployment.yaml
-          kubectl apply -f k8s-config/service.yaml
+          kubectl apply -f nodejs-k8s-config/deployment.yaml
+          kubectl apply -f nodejs-k8s-config/service.yaml
