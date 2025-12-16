@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, mac, kind]
 
     steps:
       - name: Debug secrets
@@ -59,11 +59,7 @@ jobs:
           KUBECONFIG: $HOME/.kube/config
  
       - name: kubectl cluster-info
-        run: |
-          set -euo pipefail
-          ls -l $HOME/.kube || true
-          kubectl config view || { echo "no kubeconfig"; exit 1; }
-          kubectl config current-context            kubectl cluster-info 
+        run: kubectl cluster-info 
         env: 
           KUBECONFIG: $HOME/.kube/config
 
