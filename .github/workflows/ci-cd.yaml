@@ -18,21 +18,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Log in to Docker Hub with a write-enabled token
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      # 3. Build and push Docker image
-      - name: Build & Push Docker Image
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/demo-app:latest
-          context: .
-          file: ./Dockerfile
+      # 2-3. Build and push image with Podman (Docker Hub)
+      - name: Build & Push Docker Image with Podman
+        run: |
+          podman --version
+          podman login docker.io -u "${DOCKERHUB_USERNAME}" -p "${DOCKERHUB_TOKEN}"
+          podman build -t docker.io/${DOCKERHUB_USERNAME}/demo-app:latest -f ./Dockerfile .
+          podman push docker.io/${DOCKERHUB_USERNAME}/demo-app:latest
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # 4. Checkout Kubernetes config repo
       - name: Checkout k8s config
@@ -44,29 +39,15 @@ jobs:
           ref: main
           path: nodejs-k8s-config
 
-      # 5. Write kubeconfig from secret (expects base64-encoded kubeconfig)
-      - name: Write kubeconfig
-        run: |
-            mkdir -p "$HOME/.kube"
-            echo "${KUBE_CONFIG_DATA}" | base64 --decode > "$HOME/.kube/config"
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-
-      # 5. Diagnostic output
+      # 5. Diagnostic output (uses local kubeconfig on self-hosted runner)
       - name: kubectl version
         run: kubectl version --client --output=yaml
-        env: 
-          KUBECONFIG: $HOME/.kube/config
- 
-      - name: kubectl cluster-info
-        run: kubectl cluster-info 
-        env: 
-          KUBECONFIG: $HOME/.kube/config
 
-      # 6. Deploy manifests
+      - name: kubectl cluster-info
+        run: kubectl cluster-info
+
+      # 6. Deploy manifests to local cluster (kind)
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f nodejs-k8s-config/deployment.yaml
           kubectl apply -f nodejs-k8s-config/service.yaml
-        env:
-          KUBECONFIG: $HOME/.kube/config
