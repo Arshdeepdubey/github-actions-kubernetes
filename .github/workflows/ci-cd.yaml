@@ -52,6 +52,22 @@ jobs:
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
 
+      # 5. Diagnostic output
+      - name: kubectl version
+        run: kubectl version --client --output=yaml
+        env: 
+          KUBECONFIG: $HOME/.kube/config
+ 
+      - name: kubectl cluster-info
+        run: |
+          set -euo pipefail
+          ls -l $HOME/.kube || true
+          kubectl config view || { echo "no kubeconfig"; exit 1; }
+          kubectl config current-context
+          kubectl cluster-info 
+        env: 
+          KUBECONFIG: $HOME/.kube/config
+
       # 6. Deploy manifests
       - name: Deploy to Kubernetes
         run: |
