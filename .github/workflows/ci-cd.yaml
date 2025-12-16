@@ -10,33 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug secrets
+        run: |
+          echo "USERNAME SET = ${{ secrets.DOCKERHUB_USERNAME != '' }}"
+
       # 1. Checkout code repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Build and push Docker image
+      # 2. Log in to Docker Hub with a write-enabled token
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. Build and push Docker image
       - name: Build & Push Docker Image
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/demo-app:latest
+          tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/demo-app:latest
           context: .
           file: ./Dockerfile
 
-      # 3. Checkout Kubernetes config repo
+      # 4. Checkout Kubernetes config repo
       - name: Checkout k8s config
         uses: actions/checkout@v3
         with:
           repository: Arshdeepdubey/k8s-config
           path: k8s-config
 
-      # 4. Set up kubectl
+      # 5. Set up kubectl
       - name: Set up kubectl
         uses: azure/k8s-set-context@v1
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
 
-      # 5. Deploy manifests
+      # 6. Deploy manifests
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f k8s-config/deployment.yaml
