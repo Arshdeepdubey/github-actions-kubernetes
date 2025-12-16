@@ -39,6 +39,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: Arshdeepdubey/k8s-config
+          # Ensure we have permission and a known branch
+          token: ${{ secrets.K8S_CONFIG_TOKEN }}
+          ref: main
           path: k8s-config
 
       # 5. Set up kubectl
